@@ -93,7 +93,3 @@ The bot automatically:
    cd topbot
    py main.py
    ```
-
-## ⚠️ Disclaimer
-
-This software is for educational and research purposes only. Cryptocurrency trading involves significant risk. Always do your own research and never invest more than you can afford to lose.
