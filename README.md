@@ -43,6 +43,28 @@ All configuration settings are centralized in `config/settings.py`:
 - **Reconnection settings** - Retry attempts and delays
 - **Trading pairs** - Monitored cryptocurrency pairs
 - **Logging settings** - Log levels and formats
+- **Environment settings** - Development vs production configurations
+
+### Environment Configuration
+
+The bot supports different configurations based on the `ENVIRONMENT` variable:
+
+**Development Mode:**
+```bash
+# Enable WebSocket tracing and debug logging
+set ENVIRONMENT=development
+py -m topbot.main
+```
+
+**Production Mode (default):**
+```bash
+# Disable tracing, use INFO logging
+py -m topbot.main
+```
+
+**Environment Variables:**
+- `ENVIRONMENT=development` - Enables WebSocket tracing and DEBUG logging
+- `ENVIRONMENT=production` - Disables tracing, uses INFO logging (default)
 
 ## 📊 Usage
 
@@ -61,21 +83,6 @@ The bot automatically:
 2024-01-10 15:30:50 - INFO - BTCUSDT: Bid=$45,230.50, Ask=$45,231.00, Spread=0.001%
 2024-01-10 15:30:50 - INFO - ETHUSDT: Bid=$2,650.25, Ask=$2,650.75, Spread=0.019%
 ```
-
-## 🚀 Features
-
-- ✅ **Real-time WebSocket data streaming** from Binance
-- ✅ **Robust connection management** with automatic reconnection
-- ✅ **Thread-safe data handling** with proper locking mechanisms
-- ✅ **Connection health monitoring** with stale data detection
-- ✅ **Modular architecture** for easy maintenance and expansion
-- ✅ **Comprehensive logging** for debugging and monitoring
-
-## 🛠️ Installation & Setup
-
-### Prerequisites
-- Python 3.8 or higher
-- pip package manager
 
 ### Installation Steps
 
