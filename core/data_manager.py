@@ -7,8 +7,6 @@ from typing import Dict, Any
 from ..config.settings import TRADING_PAIRS
 
 class DataManager:
-    """Manages price data with thread-safe operations"""
-    
     def __init__(self):
         self.price_data = TRADING_PAIRS.copy()
         self.lock = threading.Lock()

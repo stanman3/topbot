@@ -1,6 +1,4 @@
 # main.py
-"""Main application entry point"""
-
 import asyncio
 import time
 import threading
@@ -10,7 +8,6 @@ from .core.websocket_client import BinanceWebSocketClient
 from .config.settings import DISPLAY_INTERVAL, CONNECTION_CHECK_INTERVAL
 
 async def display_prices(data_manager, logger):
-    """Display current prices asynchronously"""
     logger.info("Display prices task started")
     try:
         while True:
@@ -23,7 +20,6 @@ async def display_prices(data_manager, logger):
                     logger.info(f"{symbol}: Bid=${data['bid']:.4f}, Ask=${data['ask']:.4f}, Spread={spread_pct:.3f}%")
             logger.info("=========================")
             
-            # Use configurable interval
             await asyncio.sleep(DISPLAY_INTERVAL)
             
     except asyncio.CancelledError:
@@ -34,10 +30,9 @@ async def display_prices(data_manager, logger):
         logger.info("display_prices task stopped")
 
 async def connection_monitor(ws_client, logger):
-    """Monitor connection status asynchronously"""
     logger.info("Connection monitor task started")
     try:
-        while True:
+        while not ws_client._shutdown:
             if not ws_client.is_connected():
                 logger.warning("WebSocket not connected. Waiting...")
             await asyncio.sleep(CONNECTION_CHECK_INTERVAL)
@@ -49,7 +44,6 @@ async def connection_monitor(ws_client, logger):
         logger.info("connection_monitor task stopped")
 
 async def main_async():
-    """Main async function"""
     logger = setup_logger(__name__)
     logger.info("Starting Binance Arbitrage Bot...")
     
@@ -57,28 +51,23 @@ async def main_async():
     data_manager = DataManager()
     ws_client = BinanceWebSocketClient(data_manager)
     
-    # Start WebSocket in thread pool without blocking event loop
+    # Start WebSocket in thread pool
     loop = asyncio.get_event_loop()
     # Wrap in lambda to catch any exceptions from start()
     loop.run_in_executor(None, lambda: ws_client.start())
     
-    # Note: heartbeat monitor will be started as an async task
-    
-    # Wait a moment for connection to establish
-    await asyncio.sleep(2)
-    
-    # Run async tasks concurrently with proper cancellation handling
+    # Run async tasks
     tasks = [
         asyncio.create_task(display_prices(data_manager, logger)),
         asyncio.create_task(connection_monitor(ws_client, logger)),
-        asyncio.create_task(ws_client.start_heartbeat_monitor())
+        asyncio.create_task(ws_client.monitor_data_freshness())
     ]
     
     try:
         await asyncio.gather(*tasks)
     except asyncio.CancelledError:
         logger.info("Main tasks cancelled, shutting down...")
-        # Cancel all tasks gracefully
+        # Cancel all tasks
         for task in tasks:
             if not task.done():
                 task.cancel()

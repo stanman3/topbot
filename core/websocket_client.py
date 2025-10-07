@@ -31,7 +31,7 @@ class BinanceWebSocketClient:
         self.heartbeat_thread = None
         self._shutdown = False
         self._pending_reconnect_task = None
-        # Thread pool for running blocking WebSocket operations
+        # Thread pool for running WebSocket operations
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1, thread_name_prefix="websocket")
         
     def on_message(self, ws, message):
@@ -69,19 +69,18 @@ class BinanceWebSocketClient:
         logger.warning(f"WebSocket closed: {close_status_code} - {close_msg}")
         self.is_running = False
         
-        # Schedule reconnection asynchronously to avoid blocking
+        # Schedule reconnection
         if self.reconnect_attempts < MAX_RECONNECT_ATTEMPTS:
             self.reconnect_attempts += 1
             logger.info(f"Attempting to reconnect... ({self.reconnect_attempts}/{MAX_RECONNECT_ATTEMPTS})")
             self.reconnect_delay = min(MAX_RECONNECT_DELAY, self.reconnect_delay * 2)
             
             # Schedule reconnection as asyncio task and track it
-            self._pending_reconnect_task = asyncio.create_task(self._delayed_reconnect_async())
+            self._pending_reconnect_task = asyncio.create_task(self.delayed_reconnect_async())
         else:
             logger.error("Max reconnection attempts reached. Stopping.")
     
-    async def _delayed_reconnect_async(self):
-        """Delayed reconnection using asyncio"""
+    async def delayed_reconnect_async(self):
         try:
             await asyncio.sleep(self.reconnect_delay)
             if (self.reconnect_attempts <= MAX_RECONNECT_ATTEMPTS and 
@@ -89,7 +88,7 @@ class BinanceWebSocketClient:
                 not self._shutdown):
                 # Run blocking start() in thread pool without blocking event loop
                 loop = asyncio.get_running_loop()
-                # Wrap in lambda to catch any exceptions from start()
+        
                 loop.run_in_executor(self.executor, lambda: self.start())
         except asyncio.CancelledError:
             logger.info("Reconnection task cancelled")
@@ -100,14 +99,14 @@ class BinanceWebSocketClient:
             self._pending_reconnect_task = None
     
     def on_open(self, ws):
-        """Handle WebSocket open"""
         logger.info("WebSocket connection established")
         self.reconnect_attempts = 0
         self.reconnect_delay = INITIAL_RECONNECT_DELAY
         logger.info(f"Subscribed to streams: {', '.join(STREAMS)}")
     
-    async def start_heartbeat_monitor(self):
-        """Monitor connection health asynchronously"""
+
+    # May change in the future as we understand what algo we will use.
+    async def monitor_data_freshness(self):
         logger.info("Heartbeat monitor started")
         try:
             while self.is_running:
@@ -155,7 +154,6 @@ class BinanceWebSocketClient:
             logger.info("WebSocket start method completed")
     
     def stop(self):
-        """Stop the WebSocket connection"""
         self.is_running = False
         if self.ws:
             self.ws.close()

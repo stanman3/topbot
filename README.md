@@ -2,22 +2,11 @@
 
 A robust, real-time cryptocurrency arbitrage bot that monitors Binance WebSocket streams for trading opportunities between BTC/USDT and ETH/USDT pairs.
 
-## ⚙️ Tech Stack
-- **Language:** Python 3.8+
-- **APIs:** Binance WebSocket API
-- **Libraries:** 
-  - `websocket-client` - WebSocket connections
-  - `ccxt` - Cryptocurrency exchange library
-  - `python-binance` - Binance API client
-  - `pandas` - Data manipulation
-  - `numpy` - Numerical calculations
-
 ### Trading Pairs Monitored
 - **BTC/USDT** - Bitcoin to USDT
 - **ETH/USDT** - Ethereum to USDT
 
 ## 📂 Repository Structure
-
 ```
 topbot/
 ├── __init__.py                 # Package initialization
@@ -36,16 +25,7 @@ topbot/
 ```
 
 ## 🔧 Configuration
-
 All configuration settings are centralized in `config/settings.py`:
-
-- **WebSocket settings** - Connection URLs and streams
-- **Reconnection settings** - Retry attempts and delays
-- **Trading pairs** - Monitored cryptocurrency pairs
-- **Logging settings** - Log levels and formats
-- **Environment settings** - Development vs production configurations
-
-### Environment Configuration
 
 The bot supports different configurations based on the `ENVIRONMENT` variable:
 
@@ -65,15 +45,6 @@ py -m topbot.main
 **Environment Variables:**
 - `ENVIRONMENT=development` - Enables WebSocket tracing and DEBUG logging
 - `ENVIRONMENT=production` - Disables tracing, uses INFO logging (default)
-
-## 📊 Usage
-
-### Basic Usage
-The bot automatically:
-1. Connects to Binance WebSocket streams
-2. Monitors BTC/USDT and ETH/USDT price data
-3. Displays real-time bid/ask prices and spreads
-4. Handles connection issues with automatic reconnection
 
 ### Monitoring Output
 ```
